@@ -1,0 +1,91 @@
+/* 6) Форма под заголовком (визуально как пункты меню) */
+.inline-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  max-width: 420px;
+  margin-bottom: 16px;
+}
+
+.inline-form__input,
+.inline-form__btn {
+  height: var(--menu-height);
+  border: 1px solid var(--menu-border);
+  border-radius: var(--menu-radius);
+  background: var(--menu-bg);
+  transition: background .2s;
+}
+
+/* Поле ввода */
+.inline-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 420px;
+}
+
+/* оставить текущие стили инпута */
+.inline-form__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: var(--menu-height);
+  padding: 0 var(--menu-pad-x);
+  border: 1px solid var(--menu-border);
+  border-radius: var(--menu-radius);
+  background: var(--menu-bg);
+  font-size: 14px;
+  color: #333;
+}
+
+/* Доступность: визуально скрытый label */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+/* 7) Адаптивность */
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 180px 1fr; }
+}
+@media (max-width: 480px) {
+  .inline-form { grid-template-columns: 1fr; }
+}
+
+/* Контейнер */
+.sync-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 420px;
+}
+
+/* Кнопка в стиле «как пункты меню/инпуты» */
+.btn-inline {
+  height: var(--menu-height);
+  padding: 0 var(--menu-pad-x);
+  border: 1px solid var(--menu-border);
+  border-radius: var(--menu-radius);
+  background: var(--menu-bg);
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background .2s, color .2s, opacity .2s;
+  line-height: 1;
+}
+
+/* Hover/active — как у .menu__btn */
+.btn-inline:hover,
+.btn-inline:focus-visible {
+  background: var(--menu-bg-hover);
+  color: #eef0fa;
+  outline: none;
+}
+
+/* Disabled */
+.btn-inline:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}

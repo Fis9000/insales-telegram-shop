@@ -1,0 +1,91 @@
+/* Базовые токены для единообразия стилистики */
+:root {
+  --menu-bg: #e0e0e0;
+  --menu-bg-hover: #687dda;
+  --menu-border: #bdbdbd;
+  --menu-radius: 1px;
+  --menu-height: 40px;
+  --menu-pad-x: 12px;
+  --content-bg: #c9cdeb;
+  --shell-bg: #eef0fa;
+  --shell-border: #c7c9d3;
+  --shadow: 0 6px 24px rgba(0,0,0,.08);
+}
+
+/* Центрируем весь макет по экрану */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: "Rubik", sans-serif;
+}
+body {
+  display: grid;
+  place-items: center;
+  background: var(--shell-bg);
+}
+
+/* 1) Двухколоночный макет: фиксированный сайдбар + гибкий контент */
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  width: min(1200px, 96vw);
+  height: min(800px, 92vh);
+  background: var(--shell-bg);
+  border: 1px solid var(--shell-border);
+  box-shadow: var(--shadow);
+}
+
+/* 2) Сайдбар */
+.sidebar {
+  background: #e6e8ef;
+  border-right: 1px solid var(--shell-border);
+}
+
+/* 3) Вертикальное меню */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  height: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* Кнопки меню */
+.menu__btn {
+  width: 100%;
+  height: var(--menu-height);
+  text-align: left;
+  padding: 0 var(--menu-pad-x);
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  background: var(--menu-bg);
+  border: 1px solid var(--menu-border);
+  border-radius: var(--menu-radius);
+  transition: background .2s;
+}
+.menu__btn:hover,
+.menu__btn.active {
+  background: var(--menu-bg-hover);
+  color: #eef0fa;
+}
+
+/* Контентная область */
+.content {
+  padding: 24px;
+  background: var(--content-bg);
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+/* Панели */
+.panel { display: block; }
+.panel[hidden] { display: none !important; }
+
+/* Заголовки разделов */
+.content__title {
+  font-size: 18px;
+  font-weight: 400;
+}

@@ -1,0 +1,28 @@
+.topbar {
+  position: fixed;
+  top: -45px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  background: #f8f8f8;
+  /* border-bottom: 1px solid #eee; */
+  z-index: 1100;
+  margin-top: 90px;
+}
+
+/* Лого текст */
+.text-logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: bold;
+  font-size: 22px;
+}
+.logo {
+  max-width: 150px;
+  height: auto;
+}

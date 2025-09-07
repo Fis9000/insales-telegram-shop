@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Шрифт -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet"/>
+
+    <title>ADMIN PANEL</title>
+
+    <!-- Стили -->
+    <link rel="stylesheet" href="css/admin/base.css" />
+    <link rel="stylesheet" href="css/admin/admin.css" />
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <nav class="menu">
+                <button class="menu__btn active" onclick="showContent('menu1', this)">Настройки</button>
+                <button class="menu__btn" onclick="showContent('menu2', this)">Синхронизация</button>
+                <button class="menu__btn" onclick="showContent('menu3', this)">Категории</button>
+                <button class="menu__btn" onclick="showContent('menu4', this)">Товары</button>
+            </nav>
+        </aside>
+
+        <main class="content" id="content-area">
+            <!-- Блок меню 1 -->
+            <section id="panel-menu1" class="panel is-active">
+                <h2 class="content__title">INSALES</h2>
+                <form class="inline-form" onsubmit="return false;">
+                  <input id="insalesIdInput" class="inline-form__input" type="text" placeholder="Идентификатор" />
+                </form>
+                <form class="inline-form" onsubmit="return false;">
+                  <input id="insalesIdInput" class="inline-form__input" type="text" placeholder="Пароль" /><br>
+                </form>
+
+                <h2 class="content__title">TELEGRAMM</h2>
+                <form class="inline-form" onsubmit="return false;">
+                  <input id="insalesIdInput" class="inline-form__input" type="text" placeholder="Токен" />
+                </form>
+            </section>
+
+            <!-- Блок меню 2 -->
+            <section id="panel-menu2" class="panel" hidden>
+                <h2 class="content__title">Раздел меню 2</h2>
+                <p>Контент меню2</p>
+            </section>
+
+            <!-- Блок меню 3 -->
+            <section id="panel-menu3" class="panel" hidden>
+                <h2 class="content__title">Раздел меню 3</h2>
+                <p>Контент меню3</p>
+            </section>
+        </main>
+    </div>
+
+    <script src="/js/admin/admin.js"></script>
+</body>
+</html>
