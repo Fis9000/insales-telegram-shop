@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-        <title>4FORMS Каталог</title>
+        <title>{{ shop }} Каталог</title>
 
         <!-- Telegram WebApp -->
         <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -26,12 +26,27 @@
     <body>
         <!-- Хедер -->
         <header class="topbar">
-            <div class="text-logo">4FORMS</div>
+            <div class="text-logo">{{ shop }}</div>
         </header>
-
+                
         <div class="container">
             <main class="scroll-area">
+                <div class="collections-area" id="collectionsArea"><button class="collections-btn" data-id="all"></button></div>
+                <div class="search-area">
+                    <input type="text" id="productSearch" placeholder="Поиск по товарам..." style="width:100%;padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;">
+                </div>
+                <div class="products-area" id="productsArea"></div>
+                <!-- <p>Магазин ID: {{ insales_id }}</p>
+                <p>Домен: {{ shop }}</p> -->
             </main>
         </div>
-    </body>
+
+        <!-- JS -->
+        <script src="/js/app/tg_view.js"></script>
+        <script src="/js/app/telegram-init.js"></script>
+
+        <!-- JS individual-->
+        <script src="/js/app/main_page/loadCollections.js"></script>
+        <script src="/js/app/main_page/loadProducts.js"></script>
+        <script src="/js/app/main_page/search.js"></script>    </body>
     </html>

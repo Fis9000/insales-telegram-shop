@@ -5,3 +5,216 @@
   background-color: #f8f8f8;
   flex-shrink: 0;
 }
+
+/* Коллекции (горизонтальный скролл) */
+.collections-area {
+  height: 40px;
+  min-height: 40px;
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 10px 15px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  position: sticky;
+  top: 1px;
+  z-index: 1000;
+  background-color: #f8f8f8;
+}
+.collections-area::-webkit-scrollbar { display: none; }
+
+/* Кнопки коллекций */
+.collections-btn {
+  padding: 12px 16px;
+  /* background: linear-gradient(to bottom, #DAE8FC 0%, #7EA6E0 100%); */
+  background: #f8f8f8;
+  border: none;
+  border-radius: 36px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #3b3b3b;
+  color: #3b3b3b;
+  font-size: 16px;
+  font-family: "Rubik", sans-serif;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.02s ease;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+.collections-btn:hover { filter: brightness(0.97); }
+.collections-btn:active { transform: translateY(1px); }
+.collections-btn.active {
+  /* background: linear-gradient(to bottom, #D5E8D4 0%, #97D077 100%); */
+  background: #3b3b3b;
+  color: #e6e6e6;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* Поиск */
+.search-area {
+  margin:5px 0 10px 0;
+  width: 100%;
+  max-width: 100vw;
+  padding: 0 12px;
+  box-sizing: border-box;
+  top: 55px;
+  /* position: sticky; */
+  z-index: 1000;
+}
+
+#productSearch {
+  width: 100%;
+  max-width: 500px; /* по желанию, ограничить еще и так */
+  box-sizing: border-box;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+  display: block;
+  margin: 0 auto;  
+}
+
+/* Товары  */
+/* Контейнер с товарами как таблица (сетка) */
+#productsArea {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);   /* по 2 колонки на телефоне */
+  gap: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+/* Карточка */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 12px;
+  min-width: 0;
+  overflow: hidden;
+  box-shadow: 6px 6px 16px rgba(0,0,0,0.15);
+}
+
+/* Слайдер */
+.product-slider {
+  width: 100%;
+  max-width: 100%;
+  height: 275px;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  overflow: hidden;
+  background: #f2f2f2;
+  min-width: 0;
+}
+.product-slider__track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform .25s ease;
+  will-change: transform;
+  min-width: 0;
+}
+.product-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.product-slide > img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* Точки */
+.product-slider__dots {
+  display: flex;
+  gap: 6px;
+  padding: 6px 10px 0;
+}
+.product-slider__dots .dot {
+  width: 6px;
+  height: 6px;
+  border: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(0,0,0,.2);
+}
+.product-slider__dots .dot.active {
+  background: rgba(0,0,0,.55);
+}
+
+/* Текстовые блоки */
+.product-title {
+  padding: 8px 10px 4px;
+  font-size: 14px;
+  line-height: 1.25;
+}
+.product-price {
+  padding: 0 10px 10px;
+  font-weight: 600;
+}
+
+/* Кнопка Каталог */
+.catalog-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  background: #f8f8f8;
+  color: #1f2a44;
+  border: 1px solid #1f2a2a;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.catalog-button:hover { filter: brightness(0.97); }
+.catalog-button:active { transform: translateY(1px); }
+
+/* стрелка */
+.catalog-button i {
+  font-size: 24px;
+  line-height: 1;
+  transition: transform 0.25s ease;
+  transform: rotate(90deg); /* при открытии поворот вправо → вниз */
+}
+.catalog-menu {
+  position: absolute;
+  top: 100%;   /* прямо под кнопкой */
+  left: 0;
+  margin-top: 4px;
+  min-width: 160px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+.catalog-menu.hidden {
+  display: none;
+}
+.catalog-menu-item {
+  padding: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.catalog-menu-item:hover {
+  background: #f0f0f0;
+}
+
+.catalog-wrapper {
+  position: relative; /* чтобы меню привязалось к кнопке */
+  flex-shrink: 0;
+}
+

@@ -8,7 +8,8 @@ from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
-from routes import (frontend_router)
+from routes import (frontend_router, admin_router, backend_router)
+from tg_bot.manager_instance import bot_manager
 
 app = FastAPI()
 
@@ -29,8 +30,6 @@ async def add_noindex_header(request: Request, call_next):
 ALLOWED_ORIGINS = [
     "http://127.0.0.1:8080",
     "http://localhost:8080",
-    # при необходимости добавить продовый фронтенд, если он с другого origin
-    # "https://shop.4forms-tech.ru",
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -45,13 +44,16 @@ app.add_middleware(
 templates = Jinja2Templates(directory="public")
 
 app.include_router(frontend_router)
+app.include_router(admin_router)
+app.include_router(backend_router)
 
-# ТГ бот
-# from tg_bot.tg_bot import tg_shop_start_bot
-# @app.on_event("startup")
-# async def start_tg_shop_start_bot():
-#     asyncio.create_task(tg_shop_start_bot())
-#     print("Telegram bot | tg_shop | is running...")
+@app.on_event("startup")
+async def startup_event():
+    await bot_manager.initialize_all_bots()
+
+# @app.on_event("shutdown")
+# async def shutdown_event():
+#     await bot_manager.stop_all()
 
 @app.get("/") # https:// = http://127.0.0.1:8080/
 def read_root():

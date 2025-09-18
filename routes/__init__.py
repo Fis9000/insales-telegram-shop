@@ -1,1 +1,3 @@
-from .frontend_route import frontend_router
+from .frontend_router import frontend_router
+from .admin_router import admin_router
+from .backend_router import backend_router

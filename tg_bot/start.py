@@ -9,9 +9,14 @@ templates = Jinja2Templates(directory="public")
 # Стартовая страница
 # https://insales-tg-shop.ru/main = http://127.0.0.1:8080/main
 
-@router.get("/main")
-async def read_root(request: Request):
+# Динамический эндпоинт для каждого магазина
+@router.get("/main/{insales_id}/{shop}")
+async def shop_webapp(request: Request, insales_id: int, shop: str):
     return templates.TemplateResponse(
         "main.html",
-        {"request": request}
+        {
+            "request": request,
+            "insales_id": insales_id,
+            "shop": shop
+        }
     )

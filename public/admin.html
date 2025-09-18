@@ -12,8 +12,12 @@
     <title>ADMIN PANEL</title>
 
     <!-- Стили -->
-    <link rel="stylesheet" href="css/admin/base.css" />
-    <link rel="stylesheet" href="css/admin/admin.css" />
+    <link rel="stylesheet" href="/css/admin/base.css" />
+    <link rel="stylesheet" href="/css/admin/admin.css" />
+    <link rel="stylesheet" href="/css/admin/collections.css" />
+
+    <script src="/js/admin/settings.js" defer></script>
+    <script src="/js/admin/admin.js" defer></script>
 </head>
 <body>
     <div class="layout">
@@ -23,6 +27,7 @@
                 <button class="menu__btn" onclick="showContent('menu2', this)">Синхронизация</button>
                 <button class="menu__btn" onclick="showContent('menu3', this)">Категории</button>
                 <button class="menu__btn" onclick="showContent('menu4', this)">Товары</button>
+                <button class="menu__btn" onclick="showContent('menu5', this)">Настройки магазина</button>
             </nav>
         </aside>
 
@@ -31,32 +36,78 @@
             <section id="panel-menu1" class="panel is-active">
                 <h2 class="content__title">INSALES</h2>
                 <form class="inline-form" onsubmit="return false;">
-                  <input id="insalesIdInput" class="inline-form__input" type="text" placeholder="Идентификатор" />
+                    <label>Идентификатор</label>
+                    <input id="identifierInput" class="inline-form__input" type="text" placeholder="Идентификатор" />
                 </form>
                 <form class="inline-form" onsubmit="return false;">
-                  <input id="insalesIdInput" class="inline-form__input" type="text" placeholder="Пароль" /><br>
+                    <label>Пароль</label>
+                    <input id="passwordInput" class="inline-form__input" type="text" placeholder="Пароль" /><br>
                 </form>
 
-                <h2 class="content__title">TELEGRAMM</h2>
+                <h2 class="content__title">TELEGRAM</h2>
                 <form class="inline-form" onsubmit="return false;">
-                  <input id="insalesIdInput" class="inline-form__input" type="text" placeholder="Токен" />
+                    <label>Токен</label>
+                    <input id="tokenInput" class="inline-form__input" type="text" placeholder="Токен" />
                 </form>
+
+                <div>
+                    <button id="saveSettingsBtn" class="btn-inline" type="button">Сохранить</button>
+                </div>
             </section>
 
             <!-- Блок меню 2 -->
-            <section id="panel-menu2" class="panel" hidden>
-                <h2 class="content__title">Раздел меню 2</h2>
-                <p>Контент меню2</p>
+            <section id="panel-menu2" class="panel" hidden><br><br>
+                <div>Синхронизация товаров:</div><br>
+                <div class="sync-controls">
+                    <button id="syncProductsBtn"
+                            class="btn-inline"
+                            type="button"
+                            data-endpoint="/reset_products"
+                            aria-busy="false">
+                        Синхронизировать
+                    </button>
+
+                    <span id="syncLoading" class="loading" aria-hidden="true"></span>
+                    <span id="syncStatus" class="status-text" aria-live="polite"></span>
+                </div>
+                <br>
+                <div>Синхронизация категорий:</div><br>
+                <div class="sync-controls">
+                <button id="syncCategoriesBtn"
+                        class="btn-inline"
+                        type="button"
+                        data-endpoint="/reset_collections"
+                        aria-busy="false">
+                    Синхронизировать
+                </button>   
+                 <span id="syncLoadingCats" class="loading" aria-hidden="true"></span>
+                    <span id="syncStatusCats" class="status-text" aria-live="polite"></span>
+                </div>
             </section>
 
             <!-- Блок меню 3 -->
             <section id="panel-menu3" class="panel" hidden>
-                <h2 class="content__title">Раздел меню 3</h2>
-                <p>Контент меню3</p>
+                <div id="collectionsContainer">
+                    <div id="collectionsLoading" class="loading" style="display: none;">Загрузка категорий...</div>
+                    <div id="collectionsError" class="error-message" style="display: none;"></div>
+                    <div id="collectionsTable" class="collections-table-container"></div>
+                </div>
+            </section>
+
+            <!-- Блок меню 4 -->
+            <section id="panel-menu4" class="panel" hidden>
+                <h2 class="content__title">Раздел меню 4</h2>
+                <p>Контент меню 4</p>
+            </section>
+
+            <!-- Блок меню 5 -->
+            <section id="panel-menu5" class="panel" hidden>
+                <h2 class="content__title">Раздел меню 5</h2>
+                <p>Контент меню 5</p>
             </section>
         </main>
     </div>
-
-    <script src="/js/admin/admin.js"></script>
+    <script src="/js/admin/adminSyncReset.js"></script>
+    <script src="/js/admin/collections.js" defer></script>
 </body>
 </html>

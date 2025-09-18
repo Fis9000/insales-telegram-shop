@@ -32,3 +32,21 @@ body, body * {
   max-width: 100%;
   /* margin-top: 100px; */
 }
+
+.scroll-area {
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  height: calc(var(--tg-viewport-height) - var(--footer-height));
+  padding-bottom: calc(var(--footer-height) + env(safe-area-inset-bottom, 0));
+  padding-top: 50px;  /* убрать большой отступ */
+  box-sizing: border-box;
+  top: 50px;
+}
+.scroll-area::after {
+  content: "";
+  display: block;
+  height: 48px; /* тут регулируй "на сколько больше скролла" */
+  flex: 0 0 auto;
+}

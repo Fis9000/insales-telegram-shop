@@ -1,0 +1,112 @@
+.collections-table-container {
+    margin-top: 20px;
+}
+
+.collections-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 1px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.collections-table thead {
+    background-color: #f8f9fa;
+}
+
+.collections-table th,
+.collections-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.collections-table th {
+    font-weight: 600;
+    color: #495057;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.collections-table td {
+    font-size: 14px;
+    color: #333;
+}
+
+.collections-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.collection-name {
+    font-weight: 500;
+}
+
+.collection-visibility {
+    text-align: center;
+    width: 200px;
+}
+
+/* Стили для кастомного чекбокса */
+.checkbox-container {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    font-size: 16px;
+    user-select: none;
+}
+
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: relative;
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+    border: 2px solid #ddd;
+    border-radius: 1px;
+    transition: all 0.2s ease;
+}
+
+.checkbox-container:hover input ~ .checkmark {
+    background-color: #f0f0f0;
+    border-color: #007bff;
+}
+
+.checkbox-container input:checked ~ .checkmark {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.no-data {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+    font-style: italic;
+    font-size: 16px;
+}

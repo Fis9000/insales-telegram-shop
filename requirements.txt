@@ -11,3 +11,4 @@ urllib3==2.4.0
 requests==2.32.3
 psycopg2-binary==2.9.10
 init_data_py==0.2.6
+asyncpg==0.30.0
