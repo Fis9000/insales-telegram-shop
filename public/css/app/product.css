@@ -1,0 +1,185 @@
+/* Страница товара — вертикальный скролл у .scroll-area, здесь без overflow */
+.product-description,
+.product-structure,
+.product-description-text,
+.product-structure-text,
+.product-prices,
+.product-base-price,
+.product-old-price,
+.back-btn {
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+/* Верхний заголовок */
+.product-title-main {
+  font-size: 26px;
+  font-weight: 400;
+  margin-top: 20px;
+  padding-left: 6px;
+  color: #1f2a44;
+}
+
+/* Блок цен */
+.product-prices {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  color: #44301f;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.product-base-price {
+  font-weight: bold;
+  font-size: 28px;
+  margin-top: 20px; /* важно убрать верхний отступ */
+}
+
+.product-old-price {
+  color: #888;
+  text-decoration: line-through;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  margin: 0; /* убедись, что нет отступов */
+}
+
+/* Галерея (горизонтальный скролл) */
+.product-gallery {
+  position: relative;
+  overflow: hidden;                 /* было: overflow-x:auto; overflow-y:hidden; */
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  margin-bottom: 1px;
+  padding: 6px 6px 12px 6px;
+}
+
+/* Лента — именно она скроллится по X */
+.product-gallery-viewport {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  scroll-snap-type: x mandatory;
+  overflow-x: auto;                 /* добавили */
+  overflow-y: hidden;               /* добавили */
+  -webkit-overflow-scrolling: touch;/* добавили */
+  position: relative;
+  z-index: 1;
+}
+.product-gallery-img {
+  max-width: min(100%, 780px);
+  width: 100%;
+  height: auto;
+  max-height: calc(var(--tg-viewport-height) - var(--footer-height) - 160px);
+  border-radius: 10px;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  cursor: pointer;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+  transition: transform 0.12s;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
+.product-gallery-img:active {
+  transform: scale(0.97);
+}
+
+@media (max-width: 768px) {
+  .product-gallery-img {
+    max-width: 95%;
+    max-height: calc(var(--tg-viewport-height) - var(--footer-height) - 120px);
+  }
+}
+
+/* Описание */
+.product-description {
+  font-size: 22px;
+  margin-top: 16px;
+  color: #333;
+}
+.product-description-text {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Состав */
+.product-structure {
+  font-size: 22px;
+  margin-top: 16px;
+  color: #333;
+}
+.product-structure-text {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Точки-пагинация */
+.gallery-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  margin-bottom: 6px;
+  user-select: none;
+  padding: 6px 10px;
+  border-radius: 999px;
+  backdrop-filter: saturate(120%) blur(2px);
+}
+.gallery-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.15) inset;
+  transition: transform .2s ease, background-color .2s ease, box-shadow .2s ease;
+  cursor: pointer;
+}
+.gallery-dot.active {
+  background: #1f2a44;
+  box-shadow: 0 0 0 1px #1f2a44, 0 0 6px rgba(31,42,68,0.35);
+  transform: scale(1.15);
+}
+
+/* Кнопка добавить в корзину */
+.product-cart-btn-wrapper {
+  margin-left: 6px;
+}
+.add-to-cart-btn {
+  padding: 12px 16px;
+  background: #f8f8f8;
+  border: 1px solid #1f2a2a;
+  color: #1f2a44;
+  font-size: 16px;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.02s ease;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
+}
+
+.add-to-cart-btn:hover:not(:disabled) {
+  filter: brightness(0.97);
+}
+
+.add-to-cart-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.add-to-cart-btn:disabled {
+  background: #e0e0e0;
+  border-color: #bbb;
+  color: #9e9e9e;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.add-to-cart-btn.active {
+  background: #1f2a22;
+  color: #f8f8f8;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+

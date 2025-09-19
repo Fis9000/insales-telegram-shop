@@ -55,7 +55,7 @@ async def startup_event():
 # async def shutdown_event():
 #     await bot_manager.stop_all()
 
-@app.get("/") # https:// = http://127.0.0.1:8080/
+@app.get("/") # https:// = http://127.0.0.1:8080/ = http://127.0.0.1:8080/admin?insales_id=1030167&shop=4forms.ru&user_email=fis9000%40yandex.ru&user_id=5663978
 def read_root():
     return {"message": "insales-telegram-shop"}
 

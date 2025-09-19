@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>{{ product.title }} - {{ shop }}</title>
+
+    <!-- Telegram WebApp -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
+
+    <!-- Шрифт -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet" />
+
+    <!-- Стили -->
+    <link rel="stylesheet" href="/css/app/product.css" />  
+    <link rel="stylesheet" href="/css/app/variants.css" />
+
+    <link rel="stylesheet" href="/css/app/base.css" />
+    <link rel="stylesheet" href="/css/app/header.css" />
+</head>
+
+<body>
+    <!-- Скрытые данные для JS -->
+    <div id="shop-data" 
+         data-insales-id="{{ insales_id }}" 
+         data-shop="{{ shop }}" 
+         style="display: none;">
+    </div>
+
+    <!-- Хедер -->
+    <header class="topbar">
+        <div class="text-logo">{{ shop }}</div>
+    </header>
+
+    <div class="container">
+        <!-- Прокручиваемая область -->
+        <div id="product-wrapper" data-product-id="{{ product.product_id }}"></div>
+        <main class="scroll-area">
+            <!-- Контент страницы товара -->
+            {% if product.images %}
+                <section class="product-gallery">
+                    <div class="product-gallery-viewport">
+                        {% for img in product.images %}
+                            <img class="product-gallery-img" src="{{ img }}" alt="{{ product.title }}" />
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+
+            <div class="product-title-main">{{ product.title }}</div>
+            
+            <!-- Цены -->
+            <section class="product-prices">
+                {% if product.base_price %}
+                    <span class="product-base-price">{{ "{:,.0f}".format(product.base_price).replace(',', ' ') }} ₽</span>
+                {% endif %}
+                {% if product.old_price and product.old_price > product.base_price %}
+                    <span class="product-old-price">{{ "{:,.0f}".format(product.old_price).replace(',', ' ') }} ₽</span>
+                {% endif %}
+            </section>
+            
+            <!-- Размеры -->
+            {% if variants and variants|length > 0 %}
+                <section class="product-variants">
+                    <div class="product-variants-title">Размеры:</div>
+                    <div class="product-variants-list" role="group" aria-label="Выбор размера">
+                        {% for v in variants %}
+                            {% set available = v.quantity and v.quantity|int > 0 %}
+                            <button
+                                type="button"
+                                class="variant-btn {{ 'available' if available else 'unavailable' }}"
+                                data-variant-id="{{ v.variant_id }}"
+                                data-variant-title="{{ v.title }}"
+                                data-available="{{ 'true' if available else 'false' }}"
+                                data-price="{{ v.variant_price }}"
+                                data-photo-url="{{ product.images[0] if product.images else '' }}"
+                                {% if not available %}disabled aria-disabled="true"{% endif %}>
+                                {{ v.title }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                    <div class="variant-helper" id="variant-helper" aria-live="polite"></div>
+                </section>
+            {% endif %}
+
+            <!-- Добавить в корзину -->
+            <div class="product-cart-btn-wrapper">
+                <button id="add-to-cart-btn" class="add-to-cart-btn" type="button" disabled>
+                    Добавить в корзину
+                </button>
+            </div>
+            
+            <div class="divider"></div>
+
+            <!-- Описание -->
+            {% if product.description %}
+                <section class="product-description">
+                    <div class="product-structure">Описание:</div>
+                    <div class="product-description-text">
+                        {{ product.description|safe }}
+                    </div>
+                </section>
+            {% endif %}
+
+            <div class="divider"></div>
+
+            <!-- Состав -->
+            <!-- {% if product.structure %}
+                <section class="product-structure">
+                    <div class="product-structure">Состав / детали</div>
+                    <div class="product-structure-text">
+                        {{ product.structure|safe }}
+                    </div>
+                </section>
+            {% endif %} -->
+        </main>
+    </div>
+
+    <!-- JS -->
+    <script src="/js/app/tg_view.js"></script>
+    <script src="/js/app/telegram-init.js"></script>
+    
+    <!-- JS specific для страницы товара -->
+    <script src="/js/app/product_page/productGalleryDots.js"></script>
+    <script src="/js/app/product_page/productVariants.js"></script>
+</body>
+</html>

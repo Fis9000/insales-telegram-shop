@@ -21,3 +21,7 @@ backend_router.include_router(show_collections_admin_router)
 # Товары отображение
 from backend.app.show_products import router as show_products_router
 backend_router.include_router(show_products_router)
+
+# Товар
+from backend.app.show_product_card import router as show_product_card_router
+backend_router.include_router(show_product_card_router)

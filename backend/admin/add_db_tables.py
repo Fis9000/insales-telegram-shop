@@ -116,6 +116,7 @@ def add_db_tables_variants_tb(db_name, prefix):
             product_id BIGINT,
             variant_id BIGINT PRIMARY KEY,
             title TEXT,
+            quantity BIGINT,
             updated_date TIMESTAMP,
             variant_price NUMERIC
         );

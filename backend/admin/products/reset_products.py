@@ -1,4 +1,3 @@
-# reset_products.py
 from fastapi import APIRouter, HTTPException, Request
 import aiohttp
 import asyncpg
@@ -35,7 +34,7 @@ def parse_dt_naive_utc(value: str):
 async def fetch_products_page(session: aiohttp.ClientSession, shop: str, auth: str, per_page: int, page: int):
     url = f"https://{shop}/admin/products.json?per_page={per_page}&page={page}"
     headers = {
-        'Authorization': auth,                 # ВАЖНО: ключ — строка 'Authorization', значение — строка "Basic ... "
+        'Authorization': auth,
         'Accept': 'application/json',
         'User-Agent': 'Telegram-Shop-App/1.0',
     }
@@ -114,7 +113,6 @@ async def save_products_and_variants(shop: str, insales_id: int, products: List[
                 material_value,                      # structure TEXT
                 p.get('is_hidden'),                  # is_hidden BOOL
                 updated_dt,                          # updated_date TIMESTAMP (naive UTC)
-                # flags в вашей схеме: is_collection_new, is_collection_sale (если хотите — вычисляйте тут; пропустим -> NULL)
                 None,                                # is_collection_new BOOL
                 None,                                # is_collection_sale BOOL
                 images_dict.get('image_3'),
@@ -125,17 +123,18 @@ async def save_products_and_variants(shop: str, insales_id: int, products: List[
                 images_dict.get('image_8'),
                 (p.get('collections_ids') or None),  # collection_ids BIGINT[]
                 p.get('available'),                  # available BOOL
-                p.get('canonical_url_collection_id') # canonical_url_collection_id TEXT
+                p.get('canonical_url_collection_id') # canonical_url_collection_id BIGINT
             ))
 
-            # variants по вашей схеме: product_id, variant_id (PK), title, updated_date, variant_price
+            # ОБНОВЛЕННЫЕ variants с добавлением quantity
             for v in variants:
                 var_values.append((
-                    p.get('id'),
-                    v.get('id'),
-                    v.get('title'),
-                    updated_dt,
-                    v.get('price') or v.get('base_price')
+                    p.get('id'),                      # product_id
+                    v.get('id'),                      # variant_id
+                    v.get('title'),                   # title
+                    v.get('quantity') or 0,           # quantity BIGINT - ДОБАВЛЕНО!
+                    updated_dt,                       # updated_date
+                    v.get('price') or v.get('base_price')  # variant_price
                 ))
 
         # Очистка и вставка
@@ -184,13 +183,15 @@ async def save_products_and_variants(shop: str, insales_id: int, products: List[
         await conn.executemany(insert_products_sql, prod_values)
 
         await conn.execute(f"TRUNCATE {variants_table} RESTART IDENTITY")
+        # ОБНОВЛЕННЫЙ SQL для variants с добавлением quantity
         insert_variants_sql = f"""
             INSERT INTO {variants_table} (
-                product_id, variant_id, title, updated_date, variant_price
-            ) VALUES ($1,$2,$3,$4,$5)
+                product_id, variant_id, title, quantity, updated_date, variant_price
+            ) VALUES ($1,$2,$3,$4,$5,$6)
             ON CONFLICT (variant_id) DO UPDATE SET
                 product_id = EXCLUDED.product_id,
                 title = EXCLUDED.title,
+                quantity = EXCLUDED.quantity,
                 updated_date = EXCLUDED.updated_date,
                 variant_price = EXCLUDED.variant_price
         """
