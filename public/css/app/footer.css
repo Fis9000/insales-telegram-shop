@@ -1,0 +1,47 @@
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: env(safe-area-inset-bottom, 0);
+  height: calc(var(--footer-height) + env(safe-area-inset-bottom, 0));
+  display: flex;
+  justify-content: flex-end; /* Размещаем справа */
+  align-items: center;
+  padding-right: 20px; /* Отступ от правого края */
+  flex-shrink: 0;
+  z-index: 9999;
+}
+
+.footer-btn {
+  /* форма и размеры */
+  width: 60px; 
+  height: 60px; 
+  border-radius: 50%;
+  margin-bottom: 180px;
+
+  /* центрирование содержимого */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* визуал */
+  background-color: #2b307267;
+  color: #e4e4e4;
+  border: 1px solid #d6d6d665;
+  text-decoration: none;
+  cursor: pointer;
+
+  /* важно: не растягивать круг! */
+  padding: 0;
+  box-sizing: border-box;
+} /* [9][10] */
+
+.footer-btn i {
+  font-size: 26px;
+  line-height: 1;
+} /* [10] */
+
+.footer-btn:active {
+  color: #000;
+}
+

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>4FORMS Каталог</title>
+
+    <!-- Telegram WebApp -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet"/>
+
+    <!-- Шрифт -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet"/>
+
+    <!-- Стили -->
+    <link rel="stylesheet" href="/css/app/cart.css" />  
+
+    <link rel="stylesheet" href="/css/app/base.css" />
+    <link rel="stylesheet" href="/css/app/header.css" />
+    <link rel="stylesheet" href="/css/app/footer.css" />
+</head>
+
+<body>
+    <!-- Хедер (бургер) -->
+    <script src="/js/base_elements/top-bar.js"></script>
+    <top-bar-js></top-bar-js>        
+    <!-- Боковое меню и оверлей (фиксированные — поверх всего) -->
+    <script src="/js/base_elements/side-bar.js"></script>
+    <side-bar-js></side-bar-js>
+    <div id="overlay" onclick="closeSidebar()"></div>
+
+    <div class="container">
+        <!-- Прокручиваемая область (внутри неё topbar и контент) -->
+        <main class="scroll-area">
+            <div class="loading">Загрузка...</div>
+            <div class="no-items">
+                <div style="margin-left: 6px; padding-top: 16px;">Корзина пуста</div>
+                <div style="margin-left: 6px; padding-top: 10px;">Вы пока ничего не добавили в корзину</div>
+            </div>
+
+            <!-- Товары в корзине -->
+            <div id="cart-items"></div>
+
+            <!-- Сумма заказа -->
+            <div id="checkout-summary" style="display:none;">
+                <div class="summary-row">
+                    <span>Сумма заказа:</span>
+                    <span id="order-total">0 ₽</span>
+                </div>
+            </div>
+
+            <!-- Кнопка оформить заказ -->
+            <div id="checkout-container" style="display:none;">
+                <button id="checkout-btn">Оформить заказ</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Футер -->
+    <script src="/js/base_elements/footer.js"></script>
+    <footer-js></footer-js>
+    <!-- Кнопка "Вверх" -->
+    <!-- <script src="/js/helpers/scrollTopBtn.js"></script> -->
+
+    <!-- JS -->
+    <script src="/js/app/tg_view.js"></script>
+    <script src="/js/app/telegram-init.js"></script>
+    
+    <script src="/js/app/cart/cart.js"></script>
+
+</body>
+</html>

@@ -1,20 +1,17 @@
 from fastapi import APIRouter, HTTPException, Request, Path
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from secret import DbShops
+from secret import Db, DbShops
 import psycopg2
 import psycopg2.extras
 import re
 import logging
 
-# Настройка логирования
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 router = APIRouter()
 templates = Jinja2Templates(directory="public")
 
 def create_connection():
+    """Подключение к базе shops_db для товаров"""
     return psycopg2.connect(
         host=DbShops.host,
         database=DbShops.database,
@@ -22,9 +19,17 @@ def create_connection():
         password=DbShops.password
     )
 
+def create_users_connection():
+    """Подключение к базе users_db для информации о магазинах"""
+    return psycopg2.connect(
+        host=Db.host,
+        database=Db.database,
+        user=Db.user,
+        password=Db.password
+    )
+
 def extract_params_from_url(url: str):
     """Извлекает insales_id и shop_domain из URL"""
-    logger.info(f"[DEBUG] Extracting params from URL: {url}")
     
     # Паттерн для URL вида /main/{insales_id}/{shop_domain}
     pattern = r'/main/(\d+)/([^/?#]+)'
@@ -33,10 +38,8 @@ def extract_params_from_url(url: str):
     if match:
         insales_id = match.group(1)
         shop_domain = match.group(2)
-        logger.info(f"[DEBUG] Extracted: insales_id={insales_id}, shop_domain={shop_domain}")
         return insales_id, shop_domain
     
-    logger.warning(f"[DEBUG] No match found for pattern in URL: {url}")
     return None, None
 
 def build_table_names(shop: str, insales_id: str):
@@ -47,7 +50,6 @@ def build_table_names(shop: str, insales_id: str):
         'products': f"shop_{safe_prefix}_products_tb",
         'variants': f"shop_{safe_prefix}_variants_tb"
     }
-    logger.info(f"[DEBUG] Built table names: {table_names}")
     return table_names
 
 LETTER_ORDER = {
@@ -70,66 +72,71 @@ def size_sort_key(v):
 def product_page(request: Request, product_id: int = Path(...)):
     """Страница товара с определением магазина по Referer"""
     
-    logger.info(f"[DEBUG] product_page called: product_id={product_id}")
-    logger.info(f"[DEBUG] Request headers: {dict(request.headers)}")
-    
     # Получаем URL откуда пришел запрос (Referer)
     referer = request.headers.get("referer") or ""
-    logger.info(f"[DEBUG] Referer: '{referer}'")
     
     # Проверяем query параметры (если переданы напрямую)
     query_insales_id = request.query_params.get("insales_id")
     query_shop = request.query_params.get("shop")
     
     if query_insales_id and query_shop:
-        logger.info(f"[DEBUG] Using query params: insales_id={query_insales_id}, shop={query_shop}")
         insales_id, shop = query_insales_id, query_shop
         table_names = build_table_names(shop, insales_id)
     elif referer:
         # Извлекаем параметры из Referer URL
         insales_id, shop = extract_params_from_url(referer)
         if not insales_id or not shop:
-            logger.error(f"[DEBUG] Failed to extract params from referer: {referer}")
-            raise HTTPException(status_code=400, detail=f"Неверный формат URL в Referer: {referer}")
-        
-        table_names = build_table_names(shop, insales_id)
+            # Fallback - берем данные из users_db
+            try:
+                users_conn = create_users_connection()
+                cursor = users_conn.cursor()
+                cursor.execute("""
+                    SELECT insales_id, shop
+                    FROM users_tb
+                    LIMIT 1
+                """)
+                result = cursor.fetchone()
+                cursor.close()
+                users_conn.close()
+                
+                if result:
+                    insales_id, shop = str(result[0]), result[1]
+                    table_names = build_table_names(shop, insales_id)
+                else:
+                    raise HTTPException(status_code=404, detail="Настройки магазина не найдены")
+            except Exception as e:
+                raise HTTPException(status_code=404, detail="Не удалось определить магазин")
+        else:
+            table_names = build_table_names(shop, insales_id)
     else:
         # Если нет ни referer, ни параметров, используем последние настройки
-        logger.info("[DEBUG] No referer or params, trying fallback")
         try:
-            conn = create_connection()
-            cursor = conn.cursor()
+            users_conn = create_users_connection()
+            cursor = users_conn.cursor()
             cursor.execute("""
                 SELECT insales_id, shop
                 FROM users_tb
-                ORDER BY created_at DESC
                 LIMIT 1
             """)
             result = cursor.fetchone()
             cursor.close()
-            conn.close()
+            users_conn.close()
             
             if result:
-                insales_id, shop = result
-                table_names = build_table_names(shop, str(insales_id))
-                logger.info(f"[DEBUG] Using fallback: insales_id={insales_id}, shop={shop}")
+                insales_id, shop = str(result[0]), result[1]
+                table_names = build_table_names(shop, insales_id)
             else:
-                logger.error("[DEBUG] No fallback settings found")
                 raise HTTPException(status_code=404, detail="Настройки магазина не найдены")
         except Exception as e:
-            logger.error(f"[DEBUG] Fallback failed: {e}")
             raise HTTPException(status_code=404, detail="Не удалось определить магазин")
     
     # Получаем товар и варианты для конкретного магазина
     product = get_product_by_id(product_id, table_names['products'])
     if not product:
-        logger.error(f"[DEBUG] Product {product_id} not found in {table_names['products']}")
         raise HTTPException(status_code=404, detail="Товар не найден")
 
     variants = get_variants_by_product_id(product_id, table_names['variants'])
     variants = sorted(variants, key=size_sort_key)
-    
-    logger.info(f"[DEBUG] Product found: {product['title']}, variants: {len(variants)}")
 
     return templates.TemplateResponse(
         "product.html", 
@@ -148,7 +155,6 @@ def get_product_by_id(product_id: int, products_table: str):
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     
     try:
-        logger.info(f"[DEBUG] Checking if table exists: {products_table}")
         # Проверяем существование таблицы
         cursor.execute("""
             SELECT EXISTS (
@@ -158,14 +164,11 @@ def get_product_by_id(product_id: int, products_table: str):
         """, (products_table,))
         
         table_exists = cursor.fetchone()[0]
-        logger.info(f"[DEBUG] Table {products_table} exists: {table_exists}")
         
         if not table_exists:
-            logger.warning(f"[DEBUG] Table {products_table} not found")
             return None
         
         # Получаем товар из таблицы конкретного магазина
-        logger.info(f"[DEBUG] Executing query on {products_table} for product_id {product_id}")
         cursor.execute(f"""
             SELECT
                 product_id,
@@ -180,22 +183,16 @@ def get_product_by_id(product_id: int, products_table: str):
                 updated_date
             FROM {products_table}
             WHERE product_id = %s 
-              AND is_hidden = FALSE 
-              AND available = TRUE 
-              AND canonical_url_collection_id IS NOT NULL;
+              AND is_hidden = FALSE;
         """, (product_id,))
         
         r = cursor.fetchone()
         if not r:
-            logger.warning(f"[DEBUG] Product {product_id} not found in {products_table}")
             return None
-
-        logger.info(f"[DEBUG] Product found: {r['title']}")
 
         # Собираем изображения
         images = [r[f"image_{i}"] for i in range(9)]  # image_0 до image_8
         images = [img for img in images if img and str(img).strip() and img != 'null']
-        logger.info(f"[DEBUG] Product has {len(images)} images")
 
         return {
             "product_id": r["product_id"],
@@ -209,7 +206,6 @@ def get_product_by_id(product_id: int, products_table: str):
         }
         
     except Exception as e:
-        logger.error(f"[DEBUG] Error getting product: {e}")
         return None
     finally:
         cursor.close()
@@ -221,7 +217,6 @@ def get_variants_by_product_id(product_id: int, variants_table: str):
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     
     try:
-        logger.info(f"[DEBUG] Checking variants table: {variants_table}")
         # Проверяем существование таблицы
         cursor.execute("""
             SELECT EXISTS (
@@ -231,13 +226,10 @@ def get_variants_by_product_id(product_id: int, variants_table: str):
         """, (variants_table,))
         
         table_exists = cursor.fetchone()[0]
-        logger.info(f"[DEBUG] Variants table {variants_table} exists: {table_exists}")
         
         if not table_exists:
-            logger.warning(f"[DEBUG] Variants table {variants_table} not found")
             return []
         
-        # ОБНОВЛЕННЫЙ SQL с добавлением quantity
         cursor.execute(f"""
             SELECT
                 variant_id,
@@ -251,7 +243,6 @@ def get_variants_by_product_id(product_id: int, variants_table: str):
         """, (product_id,))
         
         rows = cursor.fetchall()
-        logger.info(f"[DEBUG] Found {len(rows)} variants")
         
         if not rows:
             return []
@@ -261,14 +252,13 @@ def get_variants_by_product_id(product_id: int, variants_table: str):
             variants.append({
                 "variant_id": r["variant_id"],
                 "title": r["title"],
-                "quantity": r["quantity"] or 0,  # Используем реальное количество из БД
+                "quantity": r["quantity"] or 0,
                 "updated_date": r["updated_date"],
                 "variant_price": r["variant_price"]
             })
         return variants
         
     except Exception as e:
-        logger.error(f"[DEBUG] Error getting variants: {e}")
         return []
     finally:
         cursor.close()

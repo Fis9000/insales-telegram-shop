@@ -9,10 +9,47 @@ let feedState = {
     q: ""
 };
 
+// Глобальные переменные для хранения информации о магазине
+let currentShop = null;
+let currentInsalesId = null;
+
 const productsArea = document.getElementById("productsArea");
 let sentinel = null;
 let listObserver = null;
 let imageObserver = null;
+
+// Функция для извлечения параметров магазина из URL
+function extractShopParams() {
+    const currentUrl = window.location.href;
+    const match = currentUrl.match(/\/main\/(\d+)\/([^/?#]+)/);
+    
+    if (match) {
+        currentInsalesId = match[1];
+        currentShop = match[2];
+        console.log(`[DEBUG] Extracted from URL: insales_id=${currentInsalesId}, shop=${currentShop}`);
+        return { insalesId: currentInsalesId, shop: currentShop };
+    }
+    
+    // Пробуем получить из элемента shop-data
+    const shopData = document.getElementById('shop-data');
+    if (shopData) {
+        currentInsalesId = shopData.dataset.insalesId;
+        currentShop = shopData.dataset.shop;
+        
+        if (currentInsalesId && currentShop) {
+            console.log(`[DEBUG] Extracted from shop-data: insales_id=${currentInsalesId}, shop=${currentShop}`);
+            return { insalesId: currentInsalesId, shop: currentShop };
+        }
+    }
+    
+    console.log('[DEBUG] Could not extract shop params');
+    return null;
+}
+
+// Инициализация параметров магазина при загрузке
+document.addEventListener('DOMContentLoaded', () => {
+    extractShopParams();
+});
 
 function resetFeed(){
     feedState.offset = 0;
@@ -351,7 +388,7 @@ productsArea.addEventListener("click", (e) => {
     }
 });
 
-// Клики (с проверкой на предыдущий свайп)
+// ИСПРАВЛЕННАЯ ЛОГИКА КЛИКОВ С ПРАВИЛЬНЫМ ОПРЕДЕЛЕНИЕМ МАГАЗИНА
 productsArea.addEventListener("click", (e) => {
     // Обработка кликов по карточкам товаров
     const card = e.target.closest(".product-card");
@@ -369,25 +406,28 @@ productsArea.addEventListener("click", (e) => {
         const interactive = e.target.closest("button, .product-slider__dots");
         if (interactive) return;
         
-        // Это обычный клик - получаем информацию о магазине и переходим
+        // Это обычный клик - получаем информацию о товаре
         const productId = card.dataset.productId;
         console.log('[DEBUG] Product clicked:', productId);
         
-        // Получаем информацию о текущем магазине
-        const shopData = document.getElementById('shop-data');
-        if (shopData) {
-            const insalesId = shopData.dataset.insalesId;
-            const shop = shopData.dataset.shop;
-            
-            if (insalesId && shop) {
-                // ПЕРЕХОД НА СТРАНИЦУ ТОВАРА С ПАРАМЕТРАМИ МАГАЗИНА
-                window.location.href = `/product/${productId}?insales_id=${insalesId}&shop=${shop}`;
-                return;
+        // Обновляем параметры магазина перед переходом
+        const shopParams = extractShopParams();
+        
+        if (shopParams && shopParams.insalesId && shopParams.shop) {
+            // ВСЕГДА передаем параметры магазина в URL
+            console.log(`[DEBUG] Navigating with params: insales_id=${shopParams.insalesId}, shop=${shopParams.shop}`);
+            window.location.href = `/product/${productId}?insales_id=${shopParams.insalesId}&shop=${shopParams.shop}`;
+        } else {
+            // Если не удалось определить магазин, используем сохраненные значения
+            if (currentInsalesId && currentShop) {
+                console.log(`[DEBUG] Using cached params: insales_id=${currentInsalesId}, shop=${currentShop}`);
+                window.location.href = `/product/${productId}?insales_id=${currentInsalesId}&shop=${currentShop}`;
+            } else {
+                // Последний fallback - переход без параметров
+                console.log('[DEBUG] No shop params available, using fallback');
+                window.location.href = `/product/${productId}`;
             }
         }
-        
-        // Fallback - переход без параметров (будет использован Referer)
-        window.location.href = `/product/${productId}`;
     }
 });
 
@@ -400,6 +440,9 @@ setInterval(() => {
 
 // Публичные инициализаторы
 window.initAllProductsFeed = async function(){
+    // Обновляем параметры магазина при инициализации
+    extractShopParams();
+    
     resetFeed();
     feedState.mode = "all";
     feedState.collectionId = null;
@@ -408,6 +451,9 @@ window.initAllProductsFeed = async function(){
 };
 
 window.initCollectionFeed = async function(collectionId){
+    // Обновляем параметры магазина при инициализации
+    extractShopParams();
+    
     resetFeed();
     feedState.mode = "collection";
     feedState.collectionId = Number(collectionId);

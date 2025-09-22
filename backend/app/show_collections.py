@@ -15,9 +15,58 @@ def create_connection():
     )
 
 @router.get("/show_collections")
-def get_collections(request: Request):
-    """Получение коллекций на основе Referer URL"""
-    return get_collections_tb(request)
+async def show_collections(request: Request):
+    # Проверяем query параметры
+    query_insales_id = request.query_params.get("insales_id")
+    query_shop = request.query_params.get("shop")
+    
+    if query_insales_id and query_shop:
+        insales_id, shop = query_insales_id, query_shop
+        table_name = build_table_name(shop, insales_id)
+        
+        conn = create_connection()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        
+        try:
+            # Проверяем существование таблицы
+            cursor.execute("""
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_name = %s
+                );
+            """, (table_name,))
+            
+            if not cursor.fetchone()[0]:
+                raise HTTPException(status_code=404, detail=f"Таблица коллекций {table_name} не найдена")
+            
+            # Получаем коллекции
+            cursor.execute(f"""
+                SELECT id, title, position
+                FROM {table_name}
+                WHERE is_hidden = false
+                ORDER BY position ASC;
+            """)
+            
+            rows = cursor.fetchall()
+            collections = [
+                {
+                    "id": row["id"],
+                    "title": row["title"],
+                    "position": row["position"]
+                }
+                for row in rows
+            ]
+            
+            return JSONResponse(content=collections)
+            
+        except psycopg2.Error as e:
+            raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
+        finally:
+            cursor.close()
+            conn.close()
+    else:
+        # Если нет query параметров, используем функцию с Referer
+        return get_collections_tb(request)
 
 def get_collections_tb(request: Request):
     """Отображение коллекций конкретного магазина на основе URL"""    

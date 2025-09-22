@@ -25,3 +25,7 @@ backend_router.include_router(show_products_router)
 # Товар
 from backend.app.show_product_card import router as show_product_card_router
 backend_router.include_router(show_product_card_router)
+
+# Корзина
+from backend.app.show_cart import router as show_cart_router
+backend_router.include_router(show_cart_router)

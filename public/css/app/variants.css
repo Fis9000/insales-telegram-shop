@@ -31,6 +31,7 @@
 .variant-btn.available:hover {
   border-color: #333;
   background: #161616;
+  color: #aaa;
 }
 
 .variant-btn.unavailable {
