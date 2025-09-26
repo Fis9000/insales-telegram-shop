@@ -71,7 +71,7 @@ class BotManager:
 
     def _build_router(self, insales_id: int, shop: str) -> Router:
         r = Router()
-        web_app_url = WebAppInfo(url=f"https://93ac17a4abfe.ngrok-free.app/main/{insales_id}/{shop}")
+        web_app_url = WebAppInfo(url=f"https://81158e1fcfbc.ngrok-free.app/main/{insales_id}/{shop}")
         # web_app_url = WebAppInfo(url=f"https://insales-tg-shop.ru/main/{insales_id}/{shop}")
         @r.message(Command("start"))
         async def cmd_start(message: Message):

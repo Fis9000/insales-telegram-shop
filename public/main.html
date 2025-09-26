@@ -19,16 +19,31 @@
     <!-- Стили -->
     <link rel="stylesheet" href="/css/app/main.css" />  
 
+    <link rel="stylesheet" href="/css/app/cart.css" />  
     <link rel="stylesheet" href="/css/app/base.css" />
     <link rel="stylesheet" href="/css/app/header.css" />
     <link rel="stylesheet" href="/css/app/footer.css" />
 </head>
 
 <body>
+    <!-- Корзина -->
+    <div id="shop-data" 
+        data-insales-id="{{ insales_id }}" 
+        data-shop="{{ shop }}" 
+        style="display: none;">
+    </div>
+
     <!-- Хедер -->
     <header class="topbar">
         <div class="text-logo">{{ shop }}</div>
     </header>
+    
+    <!-- Корзина -->
+    <div id="shop-data" 
+        data-insales-id="{{ insales_id }}" 
+        data-shop="{{ shop }}" 
+        style="display: none;">
+    </div>
             
     <div class="container">
         <main class="scroll-area">
@@ -41,14 +56,17 @@
             <p>Домен: {{ shop }}</p> -->
         </main>
     </div>
+
     <footer class="footer">
-        <a class="footer-btn" href="/cart"><i class="ri-shopping-cart-line"></i></a>
+        <a class="footer-btn" href="/cart">
+            <i class="ri-shopping-cart-line"></i>
+        </a>
     </footer>
 
     <!-- JS -->
     <script src="/js/app/tg_view.js"></script>
     <script src="/js/app/telegram-init.js"></script>
-    <script src="/js/app/cart/cart.js"></script>
+    <script src="/js/app/cart/cartCounter.js"></script>
 
     <!-- JS individual-->
     <script src="/js/app/main_page/loadCollections.js"></script>

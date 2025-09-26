@@ -19,18 +19,19 @@
     <!-- Стили -->
     <link rel="stylesheet" href="/css/app/product.css" />  
     <link rel="stylesheet" href="/css/app/variants.css" />
-
+    
+    <link rel="stylesheet" href="/css/app/cart.css" />  
     <link rel="stylesheet" href="/css/app/base.css" />
     <link rel="stylesheet" href="/css/app/header.css" />
     <link rel="stylesheet" href="/css/app/footer.css" />
 </head>
 
 <body>
-    <!-- Скрытые данные для JS -->
+    <!-- Корзина -->
     <div id="shop-data" 
-         data-insales-id="{{ insales_id }}" 
-         data-shop="{{ shop }}" 
-         style="display: none;">
+        data-insales-id="{{ insales_id }}" 
+        data-shop="{{ shop }}" 
+        style="display: none;">
     </div>
 
     <!-- Хедер -->
@@ -128,9 +129,9 @@
     <!-- JS -->
     <script src="/js/app/tg_view.js"></script>
     <script src="/js/app/telegram-init.js"></script>
-    <script src="/js/app/cart/cart.js"></script>
-    
-    <!-- JS specific для страницы товара -->
+    <script src="/js/app/cart/cartCounter.js"></script>
+
+    <!-- JS individual-->
     <script src="/js/app/product_page/productGalleryDots.js"></script>
     <script src="/js/app/product_page/productVariants.js"></script>
 </body>

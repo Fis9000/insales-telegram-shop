@@ -1,5 +1,5 @@
 from typing import Dict, List
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Query, Request, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from .cart_db import get_user_cart_db, bulk_update_cart_quantities, add_to_user_cart_db, delete_from_user_cart_db
@@ -52,7 +52,31 @@ def get_fallback_shop_params():
 
 @router.get("/cart", response_class=HTMLResponse)
 async def cart_page(request: Request):
-    return templates.TemplateResponse("cart.html", {"request": request})
+    """Страница корзины с определением магазина"""
+    
+    # Получаем параметры магазина
+    query_insales_id = request.query_params.get("insales_id")
+    query_shop = request.query_params.get("shop")
+    
+    if query_insales_id and query_shop:
+        insales_id, shop = query_insales_id, query_shop
+    else:
+        # Пытаемся из referer
+        referer = request.headers.get("referer", "")
+        insales_id, shop = extract_shop_params_from_referer(referer)
+        
+        if not insales_id or not shop:
+            insales_id, shop = get_fallback_shop_params()
+    
+    if not insales_id or not shop:
+        # Используем дефолтные значения
+        insales_id, shop = "1030167", "4forms.ru"
+    
+    return templates.TemplateResponse("cart.html", {
+        "request": request,
+        "insales_id": insales_id,
+        "shop": shop
+    })
 
 @router.post("/cart")
 async def get_cart(request: Request):
@@ -79,6 +103,78 @@ async def get_cart(request: Request):
             raise HTTPException(status_code=400, detail="Не удалось определить магазин")
     
     return get_user_cart_db(user_id, shop, insales_id)
+
+@router.get("/get_user_cart")
+async def get_user_cart(user_id: str = Query(...), insales_id: str = Query(...), shop: str = Query(...)):
+    """Получить товары из корзины пользователя"""
+    try:
+        from .cart_db import build_cart_table_name, create_shops_connection
+        import psycopg2.extras
+        
+        logger.info(f"[DEBUG] get_user_cart called: user_id={user_id}, insales_id={insales_id}, shop={shop}")
+        
+        # Формируем имя таблицы
+        table_name = build_cart_table_name(shop, insales_id)
+        
+        # Подключаемся к БД напрямую (как в cart_count)
+        conn = create_shops_connection()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        
+        # Ищем товары пользователя (проверяем и строку и число)
+        cursor.execute(f"""
+            SELECT user_id, product_id, variant_id, quantity, 
+                   variant_price, image_0, variant_title, product_title
+            FROM {table_name} 
+            WHERE user_id = %s OR user_id = %s
+        """, (user_id, int(user_id)))
+        
+        cart_items = cursor.fetchall()
+        
+        # Конвертируем в обычные словари
+        result = [dict(row) for row in cart_items]
+        
+        cursor.close()
+        conn.close()
+        
+        logger.info(f"[DEBUG] Found {len(result)} items in cart")
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error getting user cart: {e}")
+        raise HTTPException(status_code=500, detail=f"Ошибка загрузки корзины: {str(e)}")
+
+@router.delete("/delete_from_cart")
+async def delete_from_cart_get(user_id: str = Query(...), variant_id: str = Query(...), insales_id: str = Query(...), shop: str = Query(...)):
+    """Удаление товара из корзины"""
+    try:
+        from .cart_db import build_cart_table_name, create_shops_connection
+        
+        logger.info(f"[DEBUG] delete_from_cart called: user_id={user_id}, variant_id={variant_id}")
+        
+        # Формируем имя таблицы
+        table_name = build_cart_table_name(shop, insales_id)
+        
+        # Подключаемся к БД напрямую
+        conn = create_shops_connection()
+        cursor = conn.cursor()
+        
+        # Удаляем товар (проверяем и строку и число для user_id)
+        cursor.execute(f"""
+            DELETE FROM {table_name} 
+            WHERE (user_id = %s OR user_id = %s) AND variant_id = %s
+        """, (user_id, int(user_id), int(variant_id)))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return JSONResponse({"status": "success"})
+        
+    except Exception as e:
+        logger.error(f"Ошибка удаления из корзины: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/cart/update_quantities")
 async def update_quantities(request: Request):
@@ -181,3 +277,40 @@ async def delete_from_cart(request: Request):
     except Exception as e:
         logger.error(f"Ошибка удаления из корзины: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/cart_count")
+async def get_cart_count_simple(user_id: str = Query(...), insales_id: str = Query(...), shop: str = Query(...)):
+    """Получение количества товаров в корзине"""
+    try:
+        from .cart_db import build_cart_table_name, create_shops_connection
+        import psycopg2.extras
+        
+        logger.info(f"[DEBUG] cart_count called: user_id={user_id}, insales_id={insales_id}, shop={shop}")
+        
+        # Формируем имя таблицы
+        table_name = build_cart_table_name(shop, insales_id)
+        
+        # Подключаемся к БД
+        conn = create_shops_connection()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        
+        # Ищем товары пользователя (проверяем и строку и число)
+        cursor.execute(f"""
+            SELECT variant_id, quantity, product_title, variant_title
+            FROM {table_name} 
+            WHERE user_id = %s OR user_id = %s
+        """, (user_id, int(user_id)))
+        
+        cart_items = cursor.fetchall()
+        
+        # Считаем общее количество товаров
+        total_count = sum(row['quantity'] or 1 for row in cart_items)
+        
+        cursor.close()
+        conn.close()
+        
+        return {"count": total_count}
+        
+    except Exception as e:
+        logger.error(f"Error getting cart count: {e}")
+        return {"count": 0}
